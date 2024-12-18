@@ -8,7 +8,7 @@ vim.keymap.set("n", "<ESC>", vim.cmd.nohlsearch, { desc = "Clear Highlights" })
 vim.keymap.set({ "i", "x", "n", "s" }, "<C-q>", vim.cmd.quit, { desc = "Quit File" })
 vim.keymap.set({ "i", "x", "n", "s" }, "<C-s>", vim.cmd.write, { desc = "Save File" })
 
-vim.keymap.set("n", "<Leader>q", function()
+vim.keymap.set("n", "<leader>q", function()
   if vim.fn.getqflist({ winid = 0 }).winid == 0 then
     vim.cmd.copen()
   else
@@ -16,11 +16,10 @@ vim.keymap.set("n", "<Leader>q", function()
   end
 end, { desc = "Toggle Quickfix" })
 
-vim.keymap.set("n", "<Leader>l", function()
+vim.keymap.set("n", "<leader>l", function()
   if vim.fn.getloclist(0, { winid = 0 }).winid == 0 then
     vim.cmd.lopen()
   else
     vim.cmd.lclose()
   end
 end, { desc = "Toggle LocList" })
-vim.keymap.set("n", "<Leader>d", vim.diagnostic.open_float, { desc = "Show Diagnostics" })

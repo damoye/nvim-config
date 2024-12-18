@@ -4,32 +4,35 @@ return {
   dependencies = {
     { "williamboman/mason.nvim", config = true },
     "williamboman/mason-lspconfig.nvim",
-    "WhoIsSethDaniel/mason-tool-installer.nvim",
     { "j-hui/fidget.nvim", opts = {} },
-    { "folke/neodev.nvim", opts = {} },
     "saghen/blink.cmp",
   },
-  config = function()
-    local servers = {
-      gopls = { settings = { gopls = { gofumpt = true } } },
-      lua_ls = { settings = { Lua = { completion = { callSnippet = "Replace" } } } },
-    }
-
-    local ensure_installed = vim.tbl_keys(servers or {})
-    vim.list_extend(ensure_installed, { "gofumpt", "stylua" })
-    require("mason").setup()
-    require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
-
-    local capabilities = require("blink.cmp").get_lsp_capabilities()
-    require("mason-lspconfig").setup({
-      handlers = {
-        function(server_name)
-          local server = servers[server_name] or {}
-          server.capabilities = capabilities
-          require("lspconfig")[server_name].setup(server)
-        end,
+  opts = {
+    servers = {
+      gopls = {
+        settings = {
+          gopls = { gofumpt = true, staticcheck = true, semanticTokens = true },
+        },
       },
-    })
+      lua_ls = { settings = { Lua = { completion = { callSnippet = "Replace" } } } },
+    },
+  },
+  config = function(_, opts)
+    require("mason-lspconfig").setup({ automatic_installation = true })
+
+    local capabilities = vim.tbl_deep_extend(
+      "force",
+      {},
+      vim.lsp.protocol.make_client_capabilities(),
+      require("blink.cmp").get_lsp_capabilities()
+    )
+
+    local servers = opts.servers
+    for server, server_opts in pairs(servers) do
+      require("lspconfig")[server].setup(vim.tbl_deep_extend("force", {
+        capabilities = vim.deepcopy(capabilities),
+      }, server_opts or {}))
+    end
 
     vim.api.nvim_create_autocmd("LspAttach", {
       group = vim.api.nvim_create_augroup("UserLspConfig", {}),
@@ -42,10 +45,10 @@ return {
     vim.api.nvim_create_autocmd("BufWritePre", {
       pattern = { "*.go" },
       callback = function(args)
-        --- @diagnostic disable-next-line:deprecated
-        local params = vim.lsp.util.make_range_params(0, vim.lsp.util._get_offset_encoding(args.buf))
-        --- @diagnostic disable-next-line:inject-field
-        params.context = { only = { "source.organizeImports" } }
+        local params = {
+          textDocument = vim.lsp.util.make_text_document_params(args.buf),
+          only = { "source.organizeImports" },
+        }
         local result = vim.lsp.buf_request_sync(args.buf, "textDocument/codeAction", params, 5000)
         for cid, res in pairs(result or {}) do
           for _, r in pairs(res.result or {}) do

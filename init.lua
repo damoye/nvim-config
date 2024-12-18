@@ -1,3 +1,5 @@
 require("config.options")
 require("config.keymaps")
 require("config.lazy")
+require("config.wsl")
+vim.cmd.colorscheme("catppuccin")

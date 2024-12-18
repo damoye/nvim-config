@@ -3,10 +3,16 @@ return {
   dependencies = { "nvim-treesitter/nvim-treesitter-textobjects" },
   lazy = vim.fn.argc(-1) == 0,
   event = { "BufReadPost", "BufNewFile", "BufWritePre" },
+  init = function(plugin)
+    require("lazy.core.loader").add_to_rtp(plugin)
+    require("nvim-treesitter.query_predicates")
+  end,
   opts = {
-    ensure_installed = { "go", "lua", "markdown_inline" },
+    ensure_installed = { "bash", "go", "lua", "markdown_inline", "vim", "vimdoc" },
     auto_install = true,
     highlight = { enable = true },
+    incremental_selection = { enable = true },
+    indent = { enable = true },
     textobjects = {
       select = {
         enable = true,
@@ -17,11 +23,6 @@ return {
           ["ac"] = "@class.outer",
           ["ic"] = "@class.inner",
         },
-      },
-      swap = {
-        enable = true,
-        swap_next = { ["<Leader>a"] = "@parameter.inner" },
-        swap_previous = { ["<Leader>A"] = "@parameter.inner" },
       },
       move = {
         enable = true,
@@ -44,7 +45,6 @@ return {
         },
       },
     },
-    indent = { enable = true },
   },
   config = function(_, opts)
     require("nvim-treesitter.configs").setup(opts)
