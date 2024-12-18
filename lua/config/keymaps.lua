@@ -23,4 +23,4 @@ vim.keymap.set("n", "<Leader>l", function()
     vim.cmd.lclose()
   end
 end, { desc = "Toggle LocList" })
-vim.keymap.set("n", "<Leader>d", vim.diagnostic.open_float, { desc = "Show Diagnostics" })
+-- vim.keymap.set("n", "<Leader>d", vim.diagnostic.open_float, { desc = "Show Diagnostics" })
